@@ -239,6 +239,10 @@ options:
       - Without this, the source address is never altered.
     type: str
     version_added: "2.2"
+  to:
+    description:
+      - This specifies the target network to use with C(NETMAP).
+    type: str
   syn:
     description:
       - This allows matching packets that have the SYN bit set and the ACK
@@ -460,6 +464,14 @@ EXAMPLES = r'''
     limit_burst: 20
     log_prefix: "IPTABLES:INFO: "
     log_level: info
+- name: iptables NETMAP
+  iptables:
+    table: nat
+    chain: PREROUTING
+    ip_version: ipv6
+    in_interface: eth0
+    jump: NETMAP
+    to: fd42::/64
 '''
 
 import re
@@ -544,6 +556,7 @@ def construct_rule(params):
     append_param(rule, params['log_level'], '--log-level', False)
     append_param(rule, params['to_destination'], '--to-destination', False)
     append_param(rule, params['to_source'], '--to-source', False)
+    append_param(rule, params['to'], '--to', False)
     append_param(rule, params['goto'], '-g', False)
     append_param(rule, params['in_interface'], '-i', False)
     append_param(rule, params['out_interface'], '-o', False)
@@ -668,6 +681,7 @@ def main():
             wait=dict(type='str'),
             source=dict(type='str'),
             to_source=dict(type='str'),
+            to=dict(type='str'),
             destination=dict(type='str'),
             to_destination=dict(type='str'),
             match=dict(type='list', default=[]),
